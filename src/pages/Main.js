@@ -1,16 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity } from 'react-native';
-import firebase from 'firebase';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {FontAwesome5, AntDesign, Feather} from "@expo/vector-icons"
+import { createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {FontAwesome5, AntDesign, Feather, MaterialIcons, FontAwesome} from "@expo/vector-icons"
 
+import { BlurView } from 'expo-blur';
 
 //Main Pages Import
 import HomePage from './MainPages/home';
 import SearchPage from './MainPages/search';
-import CartPage from './MainPages/cart';
 import ProfilePage from './MainPages/profile';
 import FavoritePage from './MainPages/favorite';
 
@@ -30,51 +28,54 @@ export default function MainPage({navigation}) {
   }
 
   return (
-    <NavigationContainer>
       <Tab.Navigator screenOptions={{
+        //tabBarAllowFontScaling: true,
+        //headerShadowVisible: false,
         tabBarActiveTintColor: "#29ABE2",
+        tabBarStyle: { position: 'absolute'},
+        tabBarBackground: () => (
+          <BlurView tint="light" intensity={90} style={StyleSheet.absoluteFill} />
+        ),
       }}
       >
         <Tab.Screen name="HomePage" component={HomePage} options={{
+          //headerTransparent: true,
+          //headerBlurEffect: "systemMaterialDark",
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="home" color={color} size={22} />
+            <FontAwesome5 name="home" color={color} size={20} />
         ),
-        title: "",
+        title: <TouchableOpacity style={{flexDirection: "row"}}><Text>{"Stores close to your Location"/* + json[0].users_state*/}</Text><MaterialIcons size={20} name="keyboard-arrow-down" color="#000" /></TouchableOpacity>,
+        headerStyle: {shadowColor: "transparent"},
         headerLeft: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
         <TouchableOpacity style={{marginLeft: 25}} onPress={() => layoutChange()}><AntDesign size={25} name="appstore-o" color="#000" /></TouchableOpacity>
-        </View>)
+        </View>),
+        headerRight: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+        <TouchableOpacity onPress={() => navigation.navigate("CartNavi")} style={{marginRight: 25}}><FontAwesome size={25} name="shopping-basket" color="#000" />{/*<View style={{position: "absolute", backgroundColor: "#29ABE2", width: 21, height: 21, alignItems: "center", justifyContent: "center", borderRadius: 11, top: -10, right: -10}}><Text style={{fontSize: 10}}>0</Text></View>*/}</TouchableOpacity>
+        </View>),
         }} />
         <Tab.Screen name="SearchPage" component={SearchPage} options={{
-          tabBarLabel: "Search",
+          tabBarLabel: "Explore",
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="search" color={color} size={22} />
+            <FontAwesome5 name="search" color={color} size={20} />
         )
         }} />
-        <Tab.Screen name="CartPage" component={CartPage}  options={{
-          tabBarLabel: "Cart",
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="shopping-cart" color={color} size={22} />
-        ),
-        title: "Cart"
-        }}/>
         <Tab.Screen name="FavoritePage" component={FavoritePage} options={{
           tabBarLabel: "Favorite",
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="heart" color={color} size={22} />
+            <AntDesign name="heart" color={color} size={20} />
         )
         }} />
         <Tab.Screen name="ProfilePage" component={ProfilePage} options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="user-alt" color={color} size={22} />
+            <FontAwesome5 name="user-alt" color={color} size={20} />
         ),
         title: "",
         headerStyle: {shadowColor: "transparent"},
         }} />
         
       </Tab.Navigator>
-     </NavigationContainer>
   );
 }
 

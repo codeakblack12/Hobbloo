@@ -1,28 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, ImageBackground, Dimensions } from 'react-native';
-import {firebaseConfig} from "../../../config";
 import firebase from 'firebase';
 
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
 
 export default function Loading({navigation}) {
-  
-    useEffect(() => checkIfLoggedIn())
 
-    const checkIfLoggedIn = () => {
+  useEffect(() => checkIfLoggedIn())
+
+  const checkIfLoggedIn = () => {
       firebase.auth().onAuthStateChanged(function(user)
         {
             if(user)
             {
-                navigation.navigate('MainPage')
+              //console.log(user.uid)
+              navigation.navigate('MainNavi')
             }
              else {
                 navigation.navigate('AuthNavigation')
             }
       })
-    }
+  }
 
   return (
     <View style={styles.container}>

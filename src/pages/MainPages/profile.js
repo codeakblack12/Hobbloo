@@ -3,11 +3,16 @@ import React, {useEffect} from 'react';
 import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import {FontAwesome5, Feather, MaterialIcons, MaterialCommunityIcons, FontAwesome, Ionicons, SimpleLineIcons} from "@expo/vector-icons"
 import firebase from 'firebase';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { firstUppercase, Initials } from '../../Components/functions';
 
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
 
+
+
 export default function ProfilePage() {
+    const tabBarheight = useBottomTabBarHeight();
 
     const LogOutbutton = () => {
         Alert.alert(
@@ -21,15 +26,16 @@ export default function ProfilePage() {
         );
     }
 
+    
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: "#fff"}}>
+    <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: "#fff", marginBottom: tabBarheight}}>
         <View style={styles.container}>
             <View style={{flexDirection: "row", alignItems: "center", marginVertical: 40, width: screenWidth*0.95, justifyContent: "flex-start"}}>
                 {/*<View style={{borderWidth: 1, borderColor: "#4e4d4d", width: (screenWidth/2)}}/>*/}
                 <View style={{width: 80, height: 80, borderRadius: 40, borderWidth: 7, borderColor: "#29ABE2", alignItems: "center", justifyContent: "center"}}>
-                    <Text style={{fontSize: 25, fontWeight: "bold"}}>PI</Text>      
+                    <Text style={{fontSize: 25, fontWeight: "bold"}}>{Initials(userdata.first_name + " " + userdata.last_name)}</Text>      
                 </View>
-                <Text style={{fontSize: 16, marginLeft: 10, fontWeight: "bold"}}>Paul Igbinedion</Text>
+                <Text style={{fontSize: 16, marginLeft: 10, fontWeight: "bold"}}>{firstUppercase(userdata.first_name)} {firstUppercase(userdata.last_name)}</Text>
                 {/*<View style={{borderWidth: 1, borderColor: "#4e4d4d", width: (screenWidth/2)}}/>*/}
             </View>
             <TouchableOpacity style={styles.btn}>
@@ -126,7 +132,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: "center",
-    justifyContent: "flex-start"
+    justifyContent: "flex-start",
+
   },
   btn: {
     width: screenWidth*0.95,

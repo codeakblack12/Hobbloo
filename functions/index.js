@@ -8,7 +8,7 @@ exports.sortedStores = functions.https.onRequest((request, response) => {
   const lat = request.query.lat;
   const long = request.query.long;
   
-  admin.database().ref('Hobbloo Data/Stores').on('value', async function (snapshot) {
+  admin.database().ref('Hobbloo Data/Stores').once('value', async function (snapshot) {
     if (snapshot.val() != null)
       {let responselist = Object.values(snapshot.val())
       var origin_ = lat + "%2C" + long
@@ -64,4 +64,93 @@ exports.sortedStores = functions.https.onRequest((request, response) => {
   });
 
 
+});
+
+
+exports.availableCategories = functions.https.onRequest((request, response) => {
+  const name = request.query.name;
+  const address = request.query.address;
+  
+  admin.database().ref('Hobbloo Data/Stores/' + name + "-" + address + "/Inventory").once('value', async function (snapshot) {
+    if(snapshot.val() != null){
+      let availablelist = Object.keys(snapshot.val())
+    admin.database().ref('Hobbloo Data/Categories').once('value', async function (snapshot) {
+      if(snapshot.val() != null){
+        let categorylist = Object.values(snapshot.val())
+        var availableCategories = []
+        for(i=0; i<categorylist.length; i++){
+          if(availablelist.includes(categorylist[i].name)){
+            availableCategories.push(categorylist[i])
+          }
+        }
+        response.json(availableCategories)
+      }else {
+        response.json([])
+      }
+      
+    })
+  }else{
+    response.json([])
+  }
+  });
+  
+});
+
+exports.categoryRender = functions.https.onRequest((request, response) => {
+  const name = request.query.name;
+  const address = request.query.address;
+  const category = request.query.category.replace(" and ", " & ")
+  total_data = []
+  catData = []
+  admin.database().ref('Hobbloo Data/Stores/' + name + "-" + address + "/Inventory/" + category).once("value", async function (snapshot){
+    if(snapshot.val() != null){
+      let availableItems = Object.keys(snapshot.val())
+      let availableItemsPrice = Object.values(snapshot.val())
+      admin.database().ref('Hobbloo Data/Items').on("value", async function (snapshot){
+        if(snapshot.val() != null){
+          let itemList = Object.values(snapshot.val())
+          for(i=0; i<availableItems.length;i++){
+            for(var j=0; j<itemList.length; j++){
+              if(availableItems[i] == itemList[j].name){
+                let obj = {name: availableItems[i], price: Number(availableItemsPrice[i].price), info: itemList[j]}
+                total_data.push(obj)
+              }
+            }
+          }
+        }
+      })
+      admin.database().ref('Hobbloo Data/Categories/' + category + '/Subcategories').once("value", async function (snapshot){
+        if (snapshot.val() != null){
+          let values = [];
+          snapshot.forEach((child) => {
+              values.push(child.val());
+          });
+          for(i=0;i<values.length;i++){
+            catData.push(values[i].name)
+          }
+          let obj = catData.reduce((ac,a) => ({...ac, [a]: []}),{})
+          for(var i=0; i<total_data.length; i++){
+            for(var j=0; j < Object.keys(obj).length; j++){
+              if(total_data[i].info.subcategory == Object.keys(obj)[j]){
+                Object.values(obj)[j].push(total_data[i])
+              }
+            }
+          }
+          for(var prop in obj){
+            if(obj[prop].length < 1){
+              console.log("yes")
+              delete obj[prop]
+            }
+          }
+          response.json(obj)
+        }else{
+          response.json([])
+        }
+      })
+    }
+    else{
+      response.json([])
+    }
+  })
+  
 });
