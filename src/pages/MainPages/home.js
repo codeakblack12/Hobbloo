@@ -1,13 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, LogBox, Text, View, Dimensions, Button, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, TextInput, ScrollView } from 'react-native';
-import { SimpleLineIcons, MaterialIcons, Fontisto, Ionicons, Feather, AntDesign } from '@expo/vector-icons';
+import { StyleSheet, LogBox, Text, View, Dimensions, Button, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, TextInput, ScrollView, Image } from 'react-native';
+import { SimpleLineIcons, MaterialIcons, Fontisto, Ionicons, Feather, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import ImageColors from 'react-native-image-colors'
 import {resizeImage} from "../../Components/functions"
 import ContentLoader from "react-native-easy-content-loader";
-import {getUserdata, firstUppercase, getGreeting} from "../../Components/functions"
+import {getUserdata, firstUppercase, getGreeting, getComment} from "../../Components/functions"
+import { LinearGradient } from 'expo-linear-gradient';
+import { Flow } from 'react-native-animated-spinkit'
+
+import StoreLayoutP from '../../Components/storeLayoutP';
+import StoreLayoutD from '../../Components/storeLayoutD';
 
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
@@ -25,15 +30,16 @@ export default function StoresPage({navigation}) {
   GLOBAL.userdata = userdata
   GLOBAL.setUserdata = setUserdata
 
-  const [userid, setUserid] = useState("");
-  GLOBAL.userid = userid
-  GLOBAL.setUserid = setUserid
+  
 
   GLOBAL.design = design
   GLOBAL.setDesign = setDesign
 
+  
+
   const randColor = () => {
-    var colors = ["#EC3539", "#F16136", "#007A3E", "#DA2418", "#D41F42", "#008080", "#1E90FF", "#4B0082", "#800080", "#8B4513"]
+    //var colors = ["#EC3539", "#F16136", "#007A3E", "#DA2418", "#D41F42", "#008080", "#1E90FF", "#4B0082", "#800080", "#8B4513"]
+    var colors = ["#F89F4B"]
     /*var colors = ['#FF6633', "#EC3539", '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
     '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
     '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
@@ -54,14 +60,6 @@ export default function StoresPage({navigation}) {
     LogBox.ignoreAllLogs()
     PinLocation()
   }, []);
-
-  const picColor = async (uri) => {
-    await ImageColors.getColors(uri, {
-      fallback: '#228B22',
-      cache: true,
-    })
-    console.log("entered")
-  }
 
 
 
@@ -96,17 +94,13 @@ const layoutChange = () => {
   }
 }
 
-const StoreNavigate = (item, accent) => {
-  navigation.navigate("StoreNavigation",{data: item, accent: accent})
-}
-
   return (
-    <View style={[styles.container, {marginBottom: 0}]}>
+    <View style={[styles.container, {marginBottom: 0, backgroundColor: APP_COLORS.background_color}]}>
       {design? (<View style={styles.container}>
-          {fetching? (<View><ActivityIndicator size="large" color="#29ABE2"/><Text style={{marginTop: 10, color: "#8A8A8A"}}>Fetching stores</Text></View>):(
+          {fetching? (<View><Flow size={48} color={APP_COLORS.item_btn_text} /><Text style={{marginTop: 10, color: "#8A8A8A"}}>Fetching stores</Text></View>):(
           <ScrollView>
-          <View style={{width: screenWidth * 0.85, alignSelf: "center", marginVertical: 20}}><Text style={{fontSize: 25, fontWeight: "500"}}>Good morning, {userdata.last_name}</Text></View>
-          <View style={{alignItems: "center"}}>
+          <View style={{width: screenWidth * 0.85, alignSelf: "center", marginVertical: 20}}><Text style={{fontSize: 23, fontWeight: "bold", color: APP_COLORS.back_text}}>{getGreeting()}, {firstUppercase(userdata.first_name)}</Text></View>
+          {stores.length > 0 ? (<View style={{alignItems: "center"}}>
             <View style={{width:screenWidth, height: screenHeight * 0.09, backgroundColor: 'transparent', alignItems: "center", justifyContent: "center", flexDirection: "row"}}>
               <View style={{flexDirection: "row"}}>
                 <TextInput style={[styles.inputBox, {width: screenWidth * 0.85}]} placeholderTextColor='#A3A3A3' placeholder="Search..." placeholderTextColor="#BDBDBD"/>
@@ -120,25 +114,29 @@ const StoreNavigate = (item, accent) => {
             keyExtractor={(item, index) => index.toString()}
             showsVerticalScrollIndicator={false}
             renderItem={({ item, index }) =>
-              <TouchableOpacity style={[styles.btnStyle, {backgroundColor: randColor(), marginBottom: index == stores.length - 1? tabBarheight + 20:0}]}>
-                <View style={{height: screenHeight*0.17, width: screenWidth*0.85, borderRadius: 15, overflow: "hidden"}}>
-                  <ImageBackground resizeMode="cover" source={{uri: item.storeData.logoUrl}} style={{height: screenHeight*0.17, width: screenWidth*0.85}} >
-                  </ImageBackground>
-                </View>
-                <View style={{width: screenWidth*0.82, alignItems: "flex-start", marginTop: 10}}>
-                  <Text style={{color:"#fff", fontSize: 17, fontWeight: "bold"}}>{item.storeData.name}</Text>
-                  <Text style={{color:"#fff", fontSize: 12, fontWeight: "bold", marginTop: 5}}>{item.durationText}</Text>
-                </View>
-              </TouchableOpacity>
+            <StoreLayoutD
+              item={item}
+              navigation={navigation}
+              index={index}
+              stores={stores}
+            />
             }
-          /></View>
+          />
+          </View>
+          ):(
+            <View style={{alignItems: "center", flex: 1, justifyContent: "center", width: screenWidth*0.9}}>
+              <Image resizeMode="contain" source={require('../../../assets/art/shopping.png')} style={{height: screenHeight*0.4, width: screenWidth*0.9}} />
+              <Text numberOfLines={2} style={{color: "#494443", marginTop: 10, fontSize: 18, textAlign: "center", fontWeight: "bold" }}>Hobbloo is not available in your current location.</Text>
+            </View>
+          )}
         </ScrollView>)}
       </View>):(
         <View>
-          {fetching? (<View><ActivityIndicator size="large" color="#29ABE2"/><Text style={{marginTop: 10, color: "#8A8A8A"}}>Fetching stores</Text></View>):(
+          {fetching? (<View><Flow size={48} color={APP_COLORS.item_btn_text} style={{alignSelf: "center"}} /><Text style={{marginTop: 10, color: "#8A8A8A"}}>Fetching stores</Text></View>):(
           <ScrollView>
-          <View style={{width: screenWidth * 0.90, alignSelf: "center", marginVertical: 20}}>{userdata.first_name ? (<Text style={{fontSize: 23, fontWeight: "bold"}}>{getGreeting()}, {firstUppercase(userdata.first_name)}</Text>):(<Text></Text>)}</View>
-          <View style={{alignItems: "center"}}>
+          <View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 20}}>{userdata.first_name ? (<Text style={{fontSize: 23, fontWeight: "bold", fontFamily: "Avenir", color: APP_COLORS.back_text}}>{getGreeting()}, {firstUppercase(userdata.first_name)}</Text>):(<Text></Text>)}</View>
+          <View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 5}}>{userdata.first_name ? (<Text style={{fontSize: 13, fontWeight: "600", fontFamily: "Avenir", color: APP_COLORS.back_text}}>{getComment()}</Text>):(<Text></Text>)}</View>
+          { stores.length > 0 ? (<View style={{alignItems: "center"}}>
             <View style={{width:screenWidth, height: screenHeight * 0.09, backgroundColor: 'transparent', alignItems: "center", justifyContent: "center", flexDirection: "row"}}>
               <View style={{flexDirection: "row"}}>
                 <TextInput style={styles.inputBox} placeholderTextColor='#A3A3A3' placeholder="Search..." placeholderTextColor="#BDBDBD"/>
@@ -147,20 +145,15 @@ const StoreNavigate = (item, accent) => {
                 </View>
               </View>
             </View>
-            {stores.length > 0? (<View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 10}}><Text style={{fontSize: 15, fontWeight: "bold"}}>Your closest store</Text></View>):(<View/>)}
-            {stores.length > 0? (<TouchableOpacity onPress={() => StoreNavigate(stores[0], randColor())} activeOpacity={0.6} style={[styles.pbtnStyle, {backgroundColor: randColor()}]}>
-                <View style={{height: screenHeight*0.15, width: screenHeight*0.15, borderRadius: 15, overflow: "hidden", backgroundColor: "#fff", marginRight: 5}}>
-                  <ImageBackground resizeMode="contain" source={{uri: resizeImage(stores[0].storeData.logoUrl)}} style={{height: screenHeight*0.15, width: screenHeight*0.15}} >
-                  </ImageBackground>
-                </View>
-                <View style={{width: screenWidth*0.5, alignItems: "flex-start", marginTop: 10}}>
-                  <Text style={{color:"#fff", fontSize: 13, fontWeight: "bold"}}>{stores[0].storeData.name}</Text>
-                  <Text style={{color:"#fff", fontSize: 11, fontWeight: "500", flexWrap: "wrap", marginTop: 5}}>{stores[0].storeData.address}</Text>
-                  <Text style={{color:"#fff", fontSize: 10, fontWeight: "bold", marginTop: 5}}>{stores[0].durationText}</Text>
-                </View>
-            </TouchableOpacity>):(<View/>)}
+            {stores.length > 0? (<View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 10}}><Text style={{fontSize: 15, fontWeight: "bold", fontFamily: "Avenir", color: APP_COLORS.back_text}}>Your closest store</Text></View>):(<View/>)}
+            {stores.length > 0? (
+            <StoreLayoutP
+              item={stores[0]}
+              navigation={navigation}
+            />
+            ):(<View/>)}
 
-            {stores.length > 1? (<View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 30, marginBottom: 0}}><Text style={{fontSize: 15, fontWeight: "bold"}}>More stores in {stores[0].users_state}</Text></View>):(<View/>)}
+            {stores.length > 1? (<View style={{width: screenWidth * 0.90, alignSelf: "center", marginTop: 30, marginBottom: 0}}><Text style={{fontSize: 15, fontWeight: "bold", fontFamily: "Avenir", color: APP_COLORS.back_text}}>More stores in {stores[0].users_state}</Text></View>):(<View/>)}
             
             <FlatList
             data={stores.slice(1)}
@@ -168,19 +161,18 @@ const StoreNavigate = (item, accent) => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: tabBarheight + 20 }}
             renderItem={({ item, index }) =>
-              <TouchableOpacity onPress={() => StoreNavigate(item, randColor())} activeOpacity={0.6} style={[styles.pbtnStyle, {backgroundColor: randColor()}]}>
-                <View style={{height: screenHeight*0.15, width: screenHeight*0.15, borderRadius: 15, overflow: "hidden", backgroundColor: "#fff", marginRight: 5}}>
-                  <ImageBackground resizeMode="contain" source={{uri: resizeImage(item.storeData.logoUrl)}} style={{height: screenHeight*0.15, width: screenHeight*0.15}} >
-                  </ImageBackground>
-                </View>
-                <View style={{width: screenWidth*0.5, alignItems: "flex-start", marginTop: 10}}>
-                  <Text style={{color:"#fff", fontSize: 13, fontWeight: "bold"}}>{item.storeData.name}</Text>
-                  <Text style={{color:"#fff", fontSize: 11, fontWeight: "500", flexWrap: "wrap", marginTop: 5}}>{item.storeData.address}</Text>
-                  <Text style={{color:"#fff", fontSize: 10, fontWeight: "bold", marginTop: 5}}>{item.durationText}</Text>
-                </View>
-              </TouchableOpacity>
+            <StoreLayoutP
+              item={item}
+              navigation={navigation}
+            />
             }
-          /></View>
+          />
+          </View>):(
+            <View style={{alignItems: "center", flex: 1, justifyContent: "center", width: screenWidth*0.9}}>
+              <Image resizeMode="contain" source={require('../../../assets/art/shopping.png')} style={{height: screenHeight*0.4, width: screenWidth*0.9}} />
+              <Text numberOfLines={2} style={{color: "#494443", marginTop: 10, fontSize: 18, textAlign: "center", fontWeight: "bold", fontFamily: "Avenir" }}>Hobbloo is not available in your current location.</Text>
+            </View>
+          )}
           </ScrollView>)}
         </View>
       )
@@ -192,7 +184,6 @@ const StoreNavigate = (item, accent) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: "center",
     justifyContent: "center",
   },
@@ -203,7 +194,7 @@ const styles = StyleSheet.create({
     height: screenHeight*0.25, 
     width: screenWidth*0.85,
     marginTop: 20, 
-    borderRadius: 15, 
+    borderRadius: 15,
     shadowColor: "black",
     shadowOpacity: 0.4,
     elevation: 8,
@@ -228,13 +219,18 @@ const styles = StyleSheet.create({
   inputBox: {
     width: screenWidth * 0.90,
     height: screenHeight * 0.05,
-    backgroundColor: '#eaeaea',
-    borderRadius: 5,
+    backgroundColor: '#fff',
+    borderRadius: 15,
     fontSize: 15,
     color: 'black',
     marginVertical: 10,
     paddingLeft: 45,
     borderWidth: 0,
-    borderColor: "#A3A3A3"
+    borderColor: "#A3A3A3",
+    shadowColor: "black",
+    shadowOpacity: 0.2,
+    elevation: 4,
+    shadowOffset: {width: 0, height: 1},
+    shadowRadius: 3,
 },
 });

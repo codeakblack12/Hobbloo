@@ -28,14 +28,14 @@ export default function ProfilePage() {
 
     
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: "#fff", marginBottom: tabBarheight}}>
-        <View style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: APP_COLORS.background_color, marginBottom: tabBarheight}}>
+        <View style={[styles.container, {backgroundColor: APP_COLORS.background_color}]}>
             <View style={{flexDirection: "row", alignItems: "center", marginVertical: 40, width: screenWidth*0.95, justifyContent: "flex-start"}}>
                 {/*<View style={{borderWidth: 1, borderColor: "#4e4d4d", width: (screenWidth/2)}}/>*/}
-                <View style={{width: 80, height: 80, borderRadius: 40, borderWidth: 7, borderColor: "#29ABE2", alignItems: "center", justifyContent: "center"}}>
-                    <Text style={{fontSize: 25, fontWeight: "bold"}}>{Initials(userdata.first_name + " " + userdata.last_name)}</Text>      
+                <View style={{width: 80, height: 80, borderRadius: 40, borderWidth: 7, borderColor: APP_COLORS.item_btn_text, alignItems: "center", justifyContent: "center"}}>
+                    <Text style={{fontSize: 25, fontWeight: "bold", fontFamily: "Avenir"}}>{Initials(userdata.first_name + " " + userdata.last_name)}</Text>      
                 </View>
-                <Text style={{fontSize: 16, marginLeft: 10, fontWeight: "bold"}}>{firstUppercase(userdata.first_name)} {firstUppercase(userdata.last_name)}</Text>
+                <Text style={{fontSize: 20, marginLeft: 10, fontWeight: "bold", fontFamily: "Avenir"}}>{firstUppercase(userdata.first_name)} {firstUppercase(userdata.last_name)}</Text>
                 {/*<View style={{borderWidth: 1, borderColor: "#4e4d4d", width: (screenWidth/2)}}/>*/}
             </View>
             <TouchableOpacity style={styles.btn}>

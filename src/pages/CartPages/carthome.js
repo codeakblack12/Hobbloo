@@ -28,6 +28,7 @@ export default function CartHome({navigation}) {
           if (snapshot.val() != null){
             let responselist = Object.keys(snapshot.val())
             setCart(Object.values(snapshot.val()))
+            console.log(Object.values(snapshot.val()))
           }else{
             setCart([])
           }
@@ -39,8 +40,8 @@ export default function CartHome({navigation}) {
             return <View style={[itemStyle, itemInvisible]} />
         }
         return (
-          <TouchableOpacity onPress={() => navigation.navigate("Cart", {data: item.items, storeName: item.storeName, storeAddress: item.storeAddress})} style={{backgroundColor: "#fff", width: screenWidth, minHeight: 80, marginTop: 5, flexDirection: "row", alignItems: "center", paddingVertical: 15}}>
-              <Image resizeMode="contain" source={{uri: resizeImage(item.storeLogo)}} style={{height: 50, width: 50, borderRadius: 25, borderWidth: 1, borderColor: "#f0f0f0", marginLeft: 10}} />
+          <TouchableOpacity onPress={() => navigation.navigate("Cart", {data: item.items, storeName: item.storeName, storeAddress: item.storeAddress, storeLogo: item.storeLogo})} style={{backgroundColor: APP_COLORS.cart_card, width: screenWidth, minHeight: 80, marginTop: 5, flexDirection: "row", alignItems: "center", paddingVertical: 15}}>
+              <Image resizeMode="contain" source={{uri: item.storeLogo ? resizeImage(item.storeLogo) : null}} style={{height: 50, width: 50, borderRadius: 25, borderWidth: 1, borderColor: "#f0f0f0", marginLeft: 10}} />
               <View style={{marginLeft: 10, width: screenWidth*0.7}}>
                   <Text style={{fontSize: 15, fontWeight: "600"}}>{item.storeName}</Text>
                   <Text style={{color: "#000", marginTop: 3, fontSize: 12}}>{item.storeAddress}</Text>
@@ -51,7 +52,7 @@ export default function CartHome({navigation}) {
         )
     }
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: APP_COLORS.background_color}]}>
         {cart.length > 0 ?
         (<FlatList
         data={cart}

@@ -8,7 +8,7 @@ export default function Button({text, style, onPress, btnDisable}) {
     if (style == "small") {
         return (
             <View>
-                <TouchableOpacity disabled={btnDisable} style={styles.Smallbtn} onPress={onPress}>
+                <TouchableOpacity disabled={btnDisable} style={[styles.Smallbtn, {backgroundColor: APP_COLORS.link_btn_tint}]} onPress={onPress}>
                     <Text style={{color: '#fff'}}>{text}</Text>
                 </TouchableOpacity>
             </View>
@@ -16,7 +16,7 @@ export default function Button({text, style, onPress, btnDisable}) {
     } else {
         return (
             <View>
-                <TouchableOpacity style={styles.Largebtn} onPress={onPress}>
+                <TouchableOpacity style={[styles.Largebtn, {backgroundColor: APP_COLORS.link_btn_tint}]} onPress={onPress}>
                     <Text style={{color: '#fff', fontWeight: "bold"}}>{text}</Text>
                 </TouchableOpacity>
             </View>

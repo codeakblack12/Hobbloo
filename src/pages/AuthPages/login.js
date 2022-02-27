@@ -58,8 +58,8 @@ export default function LoginPage({navigation}) {
     }
 
   return (
-    <View style={styles.container}>
-        <Image style={{width: 200, height: 150}} resizeMode="contain" source={require("../../../assets/HOBBLOO/icon.jpeg")}/>
+    <View style={[styles.container, {backgroundColor: APP_COLORS.background_color}]}>
+        <Image style={{width: 250, height: 125}} resizeMode="contain" source={require("../../../assets/logos/IMG_0325.png")}/>
         <TextInput style={styles.inputBox} placeholderTextColor='#A3A3A3' placeholder="E-mail" onChangeText={text => setEmail(text.replace(/\s/g, ''))}/>
         <PasswordInput placeholder="Password" onCT={text => setPassword(text.replace(/\s/g, ''))}/>
         <View style={{alignItems: "flex-start", width: screenWidth * 0.78}}>

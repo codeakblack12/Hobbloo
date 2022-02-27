@@ -53,9 +53,9 @@ export default function RegisterPage({navigation}) {
     }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} enabled>
+    <KeyboardAvoidingView style={[styles.container, {backgroundColor: APP_COLORS.background_color}]} behavior={Platform.OS === "ios" ? "padding" : "height"} enabled>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.container}>
+    <View style={[styles.container, , {backgroundColor: APP_COLORS.background_color}]}>
         
         <TextInput style={styles.inputBox} placeholderTextColor='#A3A3A3' placeholder="First Name" onChangeText={text => setFname(text.replace(/\s/g, ''))}/>
         <TextInput style={styles.inputBox} placeholderTextColor='#A3A3A3' placeholder="Last Name" onChangeText={text => setLname(text.replace(/\s/g, ''))}/>

@@ -5,10 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/HOBBLOO/icon2.png",
+    "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/HOBBLOO/HOBBLOO5.png",
+      "image": "./assets/logos/IMG_0327.png",
       "resizeMode": "contain",
-      "backgroundColor": "#fff"
+      "backgroundColor": "#efeeee"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

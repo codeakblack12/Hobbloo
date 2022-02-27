@@ -1,22 +1,38 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useLayoutEffect} from 'react';
 import { StyleSheet, Text, View, LogBox, FlatList, Dimensions, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import firebase from "firebase"
 import {Ionicons, FontAwesome} from "@expo/vector-icons"
 import { resizeImage, numberFormat } from '../../Components/functions';
+import Dialog from "react-native-dialog";
 import * as Haptics from 'expo-haptics';
+import { saveBasket, updateQuantity } from '../../Components/functions';
 
 const numColumns = 1
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
 
 export default function Cart({route, navigation}) {
-  const {data, storeName, storeAddress} = route.params;
+  const {storeName, storeAddress, storeLogo} = route.params;
   const [cart, setCart] = useState([])
+  const [dialogvisible, setDialogvisible] = useState(false);
+  const [name, setName] = useState("")
+  const [issaved, setIssaved] = useState(false)
+
+  useLayoutEffect(() => {
+    //readFavBaskets()
+    readCart()
+  }, []);
 
   useEffect(() => {
     LogBox.ignoreAllLogs()
-    navigation.setOptions({title: storeName + " Basket"})
-    readCart()
+    navigation.setOptions({
+      title: storeName + " Basket",
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setDialogvisible(true)} style={{marginRight: 25}}>
+          <FontAwesome size={23} name= {"heart-o"} color={APP_COLORS.item_btn_text} />
+        </TouchableOpacity>
+      )
+    })
   }, []);
 
   let trimString = function (string, length) {
@@ -25,68 +41,25 @@ export default function Cart({route, navigation}) {
            string;
   };
 
-  const checkCart = () => {
-    firebase.database().ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress + "/Items/").on('value', function (snapshot) {
-      if (snapshot.val() != null){
-        return
-      }else{
-        let userRef = firebase.database().ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress);
-        userRef.remove()
-      }
-    });
-  }
-
-  const updateQuantity = (item, qty, val) => {
-    if(val == "plus"){
-      var quant = qty + 1
-    }
-    else{
-      var quant = qty - 1
-    }
-
-    if(qty == 1 & val == "trash-o"){
-      let userRef = firebase.database().ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress + "/Items/" + item.name);
-      userRef.remove()
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-      checkCart()
-      return
-    }
-
-    try {
-      firebase
-          .database()
-          .ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress + "/Items/" + item.name)
-          .update({
-          quantity: quant,
-          }).then(() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-          }).catch((error) => {
-          alert(error)
-      });
-    } catch (e) {
-        console.log(e);
-    }
-    }
-
   const _renderItem = ({item, index}) => {
     let {itemStyle, itemText, itemInvisible, btnStyle} = styles
     if (item.empty){
         return <View style={[itemStyle, itemInvisible]} />
     }
     return (
-      <View style={{backgroundColor: "#fff", width: screenWidth, minHeight: 100, marginTop: 5, flexDirection: "row", alignItems: "center", paddingVertical: 10, marginBottom: index == cart.length - 1 ? 100 : 0}}>
-         <Image resizeMode="contain" source={{uri: resizeImage(item.logo)}} style={{height: screenWidth * 0.12, width: screenWidth * 0.12, marginLeft: 10}} />
+      <View style={{backgroundColor: APP_COLORS.cart_card, width: screenWidth * 0.95, minHeight: 120, marginTop: 5, flexDirection: "row", alignItems: "center", paddingVertical: 10, marginBottom: index == cart.length - 1 ? 100 : 0, borderBottomWidth: 1, borderColor: "rgba(60,19,97,0.2)"}}>
+         <Image resizeMode="contain" source={{uri: resizeImage(item.logo)}} style={{height: screenWidth * 0.22, width: screenWidth * 0.22, marginLeft: 10}} />
          <View style={{marginLeft: 15, width: screenWidth * 0.5}}>
             <Text style={{fontSize: 13, fontWeight: "600"}}>{trimString(item.name, 100)}</Text>
             <Text style={{color: "#a0a0a0", marginTop: 3, fontSize: 11}}>{numberFormat(item.price)} / unit</Text>
             <View style={{width: screenWidth * 0.2, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 10}}>
-                <TouchableOpacity onPress={() => updateQuantity(item, item.quantity, item.quantity == 1 ? "trash-o" : "minus")}>
+                <TouchableOpacity onPress={() => updateQuantity(item.name, item.quantity, item.quantity == 1 ? "trash-o" : "minus", storeName, storeAddress)}>
                     <FontAwesome size={16} name={item.quantity == 1 ? "trash-o" : "minus"} color="#000" />
                 </TouchableOpacity>
                 <View style={{width: 40, height: 40, borderRadius: 5, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#8a8a8a"}}>
                     <Text style={{fontSize: 13}}>{item.quantity}</Text>
                 </View>
-                <TouchableOpacity onPress={() => updateQuantity(item, item.quantity, "plus")}>
+                <TouchableOpacity onPress={() => updateQuantity(item.name, item.quantity, "plus", storeName, storeAddress)}>
                     <FontAwesome size={16} name="plus" color="#000" />
                 </TouchableOpacity>
             </View>
@@ -103,12 +76,28 @@ export default function Cart({route, navigation}) {
       if (snapshot.val() != null){
         let responselist = Object.keys(snapshot.val())
         setCart(Object.values(snapshot.val()))
+        checkCart()
         //console.log(Object.values(snapshot.val()))
       }else{
         setCart([])
       }
     });
 }
+
+const checkCart = () => {
+  firebase.database().ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress + "/Items/").on('value', function (snapshot) {
+    if (snapshot.val() != null){
+      return
+    }else{
+      let userRef = firebase.database().ref("User Data/Customers/" + userid + "/cart/" + storeName + "-" + storeAddress);
+      userRef.remove()
+    }
+  });
+}
+
+const handleCancel = () => {
+  setDialogvisible(false);
+};
 
  const getCheckout = (item) => {
     var checkout = 0
@@ -120,7 +109,16 @@ export default function Cart({route, navigation}) {
  }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: APP_COLORS.background_color}]}>
+        <Dialog.Container visible={dialogvisible} contentStyle={{width: screenWidth * 0.8, marginBottom: 80}} onBackdropPress={handleCancel}>
+          <Dialog.Title style={{fontSize: 15, textAlign: "left", fontFamily: "Avenir", color: APP_COLORS.back_text, fontWeight: "bold"}}>Basket Name</Dialog.Title>
+          <Dialog.Description style={{fontSize: 12, textAlign: "left", fontFamily: "Avenir", color: APP_COLORS.back_text}}>
+              Give your basket a personalized name
+          </Dialog.Description>
+          <Dialog.Input style={{fontFamily: "Avenir"}} onChangeText={text => setName(text)} autoFocus={true}></Dialog.Input>
+          <Dialog.Button bold onPress={() => setDialogvisible(false)} label="Cancel" />
+          <Dialog.Button onPress={() => {saveBasket(name, cart, storeName, storeAddress, storeLogo), setDialogvisible(false)}} label="Ok" />
+        </Dialog.Container>
         {cart.length > 0 ?
         (<FlatList
         data={cart}
@@ -135,7 +133,7 @@ export default function Cart({route, navigation}) {
             </View>
         )
         }
-        <TouchableOpacity activeOpacity={0.7} style={{width: screenWidth*0.8, height: 70, backgroundColor: "rgba(62, 179, 229,0.9)", position: "absolute", bottom: 20, borderRadius: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+        <TouchableOpacity onPress={() => navigation.navigate("Checkout", {storeName: storeName, storeAddress: storeAddress, storeLogo: storeLogo})} activeOpacity={0.7} style={{width: screenWidth*0.8, height: 70, backgroundColor: APP_COLORS.checkout_btn, position: "absolute", bottom: 20, borderRadius: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
             <View style={{marginLeft: 15}}>
                 <Text style={{fontSize: 14, fontWeight: "500", color: "#fff"}}>Checkout</Text>
                 <Text style={{fontSize: 22, fontWeight: "700", marginTop: 10, color: "#fff"}}>{numberFormat(getCheckout(cart))}</Text>

@@ -1,10 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity } from 'react-native';
+import React, {useLayoutEffect, useState} from 'react';
+import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {FontAwesome5, AntDesign, Feather, MaterialIcons, FontAwesome} from "@expo/vector-icons"
+import { useFonts } from 'expo-font';
+
+import { getUserdata } from '../Components/functions';
+
+import { createIconSetFromIcoMoon } from 'react-native-vector-icons';
+
 
 import { BlurView } from 'expo-blur';
+
+import CartIcon from '../Components/CartIcon';
 
 //Main Pages Import
 import HomePage from './MainPages/home';
@@ -17,7 +25,18 @@ const Tab = createBottomTabNavigator();
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
 
+const Icon = createIconSetFromIcoMoon(
+  require('../../assets/icomoon/selection.json'),
+  'IcoMoon',
+  'fonts/icomoon.ttf'
+);
+
 export default function MainPage({navigation}) {
+
+  useLayoutEffect(() => {
+    getUserdata()
+    //readCart()
+  }, []);
 
   const layoutChange = () => {
     if(design){
@@ -27,52 +46,64 @@ export default function MainPage({navigation}) {
     }
   }
 
+  const [fontsLoaded] = useFonts({ IcoMoon: require('../../assets/icomoon/fonts/icomoon.ttf') });
+  if (!fontsLoaded) {
+    return <ActivityIndicator />;
+  }
+
   return (
-      <Tab.Navigator screenOptions={{
-        //tabBarAllowFontScaling: true,
-        //headerShadowVisible: false,
-        tabBarActiveTintColor: "#29ABE2",
-        tabBarStyle: { position: 'absolute'},
-        tabBarBackground: () => (
-          <BlurView tint="light" intensity={90} style={StyleSheet.absoluteFill} />
-        ),
-      }}
-      >
+        <Tab.Navigator screenOptions={{
+          //tabBarAllowFontScaling: true,
+          //headerShadowVisible: false,
+          headerTintColor: APP_COLORS.back_text,
+          tabBarActiveTintColor: APP_COLORS.tab_active,
+          tabBarInactiveTintColor: APP_COLORS.tab_inactive,
+          tabBarStyle: { position: 'absolute'},
+          tabBarBackground: () => (
+            <BlurView tint="light" intensity={90} style={StyleSheet.absoluteFill} />
+          ),
+        }}
+        >
         <Tab.Screen name="HomePage" component={HomePage} options={{
           //headerTransparent: true,
           //headerBlurEffect: "systemMaterialDark",
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="home" color={color} size={20} />
+            <Icon name="Home1" color={color} size={25} />
         ),
-        title: <TouchableOpacity style={{flexDirection: "row"}}><Text>{"Stores close to your Location"/* + json[0].users_state*/}</Text><MaterialIcons size={20} name="keyboard-arrow-down" color="#000" /></TouchableOpacity>,
-        headerStyle: {shadowColor: "transparent"},
+        title: <TouchableOpacity style={{flexDirection: "row"}}><Text style={{color: APP_COLORS.back_text}}>{"Stores close to your Location"/* + json[0].users_state*/}</Text><MaterialIcons size={20} name="keyboard-arrow-down" color={APP_COLORS.back_text} /></TouchableOpacity>,
+        headerStyle: {shadowColor: "transparent", backgroundColor: APP_COLORS.background_color},
         headerLeft: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-        <TouchableOpacity style={{marginLeft: 25}} onPress={() => layoutChange()}><AntDesign size={25} name="appstore-o" color="#000" /></TouchableOpacity>
+        <TouchableOpacity style={{marginLeft: 25}} onPress={() => layoutChange()}><AntDesign size={25} name="appstore-o" color={APP_COLORS.back_text} /></TouchableOpacity>
         </View>),
-        headerRight: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-        <TouchableOpacity onPress={() => navigation.navigate("CartNavi")} style={{marginRight: 25}}><FontAwesome size={25} name="shopping-basket" color="#000" />{/*<View style={{position: "absolute", backgroundColor: "#29ABE2", width: 21, height: 21, alignItems: "center", justifyContent: "center", borderRadius: 11, top: -10, right: -10}}><Text style={{fontSize: 10}}>0</Text></View>*/}</TouchableOpacity>
-        </View>),
+        headerRight: () => (
+        <CartIcon 
+          navigation={navigation}
+        />
+        ),
         }} />
-        <Tab.Screen name="SearchPage" component={SearchPage} options={{
+        {/* <Tab.Screen name="SearchPage" component={SearchPage} options={{
           tabBarLabel: "Explore",
+          headerStyle: {backgroundColor: APP_COLORS.background_color},
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="search" color={color} size={20} />
+            <Icon name="Search1" color={color} size={25} />
         )
-        }} />
+        }} /> */}
         <Tab.Screen name="FavoritePage" component={FavoritePage} options={{
-          tabBarLabel: "Favorite",
+          tabBarLabel: "Favourite",
+          title: "Favourite",
+          headerStyle: {backgroundColor: APP_COLORS.background_color},
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="heart" color={color} size={20} />
+            <Icon name="Heart1" color={color} size={20} />
         )
         }} />
         <Tab.Screen name="ProfilePage" component={ProfilePage} options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="user-alt" color={color} size={20} />
+            <Icon name="Profile1" color={color} size={25} />
         ),
         title: "",
-        headerStyle: {shadowColor: "transparent"},
+        headerStyle: {shadowColor: "transparent", backgroundColor: APP_COLORS.background_color},
         }} />
         
       </Tab.Navigator>

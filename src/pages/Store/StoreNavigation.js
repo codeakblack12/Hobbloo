@@ -6,6 +6,8 @@ import {FontAwesome5, AntDesign, Feather, MaterialIcons, FontAwesome, Ionicons} 
 import { SearchBar, Icon } from 'react-native-elements';
 import {resizeImage} from "../../Components/functions"
 
+import CartIcon from '../../Components/CartIcon';
+
 var screenWidth = Dimensions.get('window').width;
 var screenHeight = Dimensions.get('window').height;
 
@@ -19,9 +21,6 @@ export default function StoreNavigation({route, navigation}) {
   
 const {data, accent} = route.params;
 
-useEffect(() => {
-    //console.log(data)
-}, [])
   return (
     <Stack.Navigator >
         <Stack.Screen
@@ -33,12 +32,14 @@ useEffect(() => {
             <Image style={styles.tinyLogo} source={{uri: resizeImage(data.storeData.logoUrl)}} resizeMode="contain" />
             {/*<Text>{data.storeData.name}</Text>*/}
           </View>, 
-            headerShown: true, headerTitleAllowFontScaling: true, headerStyle: {shadowColor: "transparent", backgroundColor: accent},
-            headerRight: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-            <TouchableOpacity onPress={() => navigation.navigate("CartNavi")} style={{marginRight: 25}}><FontAwesome size={25} name="shopping-basket" color="#fff" /></TouchableOpacity>
-            </View>),
+            headerShown: true, headerTitleAllowFontScaling: true, headerStyle: {shadowColor: "transparent", backgroundColor: APP_COLORS.header},
+            headerRight: () => (
+            <CartIcon 
+              navigation={navigation}
+            />
+            ),
             headerLeft: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-            <TouchableOpacity style={{marginLeft: 25}} onPress={() => navigation.goBack()}><FontAwesome size={25} name="close" color="#fff" /></TouchableOpacity>
+            <TouchableOpacity style={{marginLeft: 25}} onPress={() => navigation.goBack()}><FontAwesome size={25} name="close" color={APP_COLORS.header_text} /></TouchableOpacity>
             </View>),
           }}
         />
@@ -46,13 +47,15 @@ useEffect(() => {
           name="StoreCategory"
           component={StoreCategory}
           options={{ title: "",
-            headerShown: true, headerTitleAllowFontScaling: true, headerStyle: {shadowColor: "transparent", backgroundColor: accent},
-            headerTitleStyle: {color: "#fff"},
-            headerRight: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-            <TouchableOpacity onPress={() => navigation.navigate("CartNavi")} style={{marginRight: 25}}><FontAwesome size={25} name="shopping-basket" color="#fff" /></TouchableOpacity>
-            </View>),
+            headerShown: true, headerTitleAllowFontScaling: true, headerStyle: {shadowColor: "transparent", backgroundColor: APP_COLORS.header},
+            headerTitleStyle: {color: APP_COLORS.header_text},
+            headerRight: () => (
+            <CartIcon 
+              navigation={navigation}
+            />
+            ),
             headerLeft: () => (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-            <TouchableOpacity style={{marginLeft: 25}} onPress={() => navigation.navigate("StoreHome")}><Ionicons size={25} name="chevron-back-sharp" color="#fff" /></TouchableOpacity>
+            <TouchableOpacity style={{marginLeft: 25}} onPress={() => navigation.navigate("StoreHome")}><Ionicons size={25} name="chevron-back-sharp" color={APP_COLORS.header_text}  /></TouchableOpacity>
             </View>),
           }}
         />
@@ -60,7 +63,8 @@ useEffect(() => {
           name="StoreItem"
           component={StoreItem}
           options={{ title: "", presentation: "modal",
-          headerTitleStyle: {fontSize: 13},
+          headerTitleStyle: {fontSize: 13, color: APP_COLORS.back_text},
+          headerStyle: {backgroundColor: APP_COLORS.background_color},
           headerLeft: () => (<View></View>),
           }}
         />

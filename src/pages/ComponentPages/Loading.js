@@ -25,8 +25,8 @@ export default function Loading({navigation}) {
   }
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={require("../../../assets/HOBBLOO/HOBBLOO5.png")} resizeMode="contain" style={{flex: 1, justifyContent: "center"}}>
+    <View style={[styles.container, {backgroundColor: APP_COLORS.background_color}]}>
+      <ImageBackground source={require("../../../assets/logos/IMG_0327.png")} resizeMode="contain" style={{flex: 1, justifyContent: "center"}}>
       <ActivityIndicator style={{marginTop: screenHeight*0.2}} size="large" />
       </ImageBackground>
     </View>

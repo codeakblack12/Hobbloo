@@ -20,7 +20,7 @@ export default function AuthNavigation() {
       screenOptions={{
         headerMode: 'screen',
         headerTintColor: "#FFF",
-        headerStyle: { backgroundColor: '#29ABE2' },
+        headerStyle: { backgroundColor: APP_COLORS.header },
       }}
     >
       <Stack.Screen
